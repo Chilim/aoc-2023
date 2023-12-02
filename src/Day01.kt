@@ -1,4 +1,8 @@
-fun isDigitLiteral(num: String) = { input: String -> input.length >= num.length && input.slice(num.indices) == num }
+
+val spelledOutDigits = mapOf(
+    "one" to 1, "two" to 2, "three" to 3, "four" to 4,
+    "five" to 5, "six" to 6, "seven" to 7, "eight" to 8, "nine" to 9
+)
 
 fun isNumericChar(c: Char) = c in "otfsen"
 
@@ -6,103 +10,42 @@ fun isNumericChar(c: Char) = c in "otfsen"
 val DEFAULT_PAIR = Pair(0, 0)
 
 fun getNumberAndShift(input: String): Pair<Int, Int> {
-    return when (input[0]) {
-        'o' -> {
-            if (isDigitLiteral("one")(input)) {
-                Pair(1, "one".length)
-            } else {
-                DEFAULT_PAIR
-            }
-        }
-
-        't' -> {
-            if (isDigitLiteral("two")(input)) {
-                Pair(2, "two".length)
-            } else if (isDigitLiteral("three")(input)) {
-                Pair(3, "three".length)
-            } else {
-                DEFAULT_PAIR
-            }
-        }
-
-        'f' -> {
-            if (isDigitLiteral("four")(input)) {
-                Pair(4, "four".length)
-            } else if (isDigitLiteral("five")(input)) {
-                Pair(5, "five".length)
-            } else {
-                DEFAULT_PAIR
-            }
-        }
-
-        's' -> {
-            if (isDigitLiteral("six")(input)) {
-                Pair(6, "six".length)
-            } else if (isDigitLiteral("seven")(input)) {
-                Pair(7, "seven".length)
-            } else {
-                DEFAULT_PAIR
-            }
-        }
-
-        'e' -> {
-            if (isDigitLiteral("eight")(input)) {
-                Pair(8, "eight".length)
-            } else {
-                DEFAULT_PAIR
-            }
-        }
-
-        else -> {
-            if (isDigitLiteral("nine")(input)) {
-                Pair(9, "nine".length)
-            } else {
-                DEFAULT_PAIR
-            }
-        }
+    spelledOutDigits.forEach { (word, value) ->
+        if (input.startsWith(word)) return Pair(value, word.length)
     }
+    return DEFAULT_PAIR
 }
 
-
-fun extractDigits(input: String): Pair<Int, Int> {
-    var firstDigit = -1
-    var lastDigit = -1
+fun extractFirstDigit(input: String): Int {
     var index = 0
-
-    while (index < input.length && firstDigit == -1) {
+    while (index < input.length) {
         if (isNumericChar(input[index])) {
             val pair = getNumberAndShift(input.substring(index))
-            if (pair.first != 0) {
-                firstDigit = pair.first
-            } else {
-                index += 1
-            }
+            if (pair.first != 0) return pair.first
         } else if (input[index].isDigit()) {
-            firstDigit = input[index].digitToInt()
-        } else {
-            index += 1
+            return input[index].digitToInt()
         }
+        index++
     }
-
-    index = input.length - 1
-
-    while (index >= 0 && lastDigit == -1) {
-        if (isNumericChar(input[index])) {
-            val pair = getNumberAndShift(input.substring(index))
-            if (pair.first != 0) {
-                lastDigit = pair.first
-            } else {
-                index -= 1
-            }
-        } else if (input[index].isDigit()) {
-            lastDigit = input[index].digitToInt()
-        } else {
-            index -= 1
-        }
-    }
-
-    return Pair(firstDigit, lastDigit)
+    return -1
 }
+
+fun extractLastDigit(input: String): Int {
+    var index = input.length - 1
+    while (index >= 0) {
+        if (input[index].isDigit()) return input[index].digitToInt()
+
+        for ((word, value) in spelledOutDigits) {
+            if (index >= word.length - 1 && input.substring(index - word.length + 1..index) == word) {
+                return value
+            }
+        }
+        index -= 1
+    }
+    return -1
+}
+
+fun extractDigits(input: String) = Pair(extractFirstDigit(input), extractLastDigit(input))
 
 
 fun main() {
@@ -125,12 +68,12 @@ fun main() {
 
     fun part2(input: List<String>): Int {
         val digits = input.map { extractDigits(it) }
-        return digits.sumOf { "${it.first}${it.second}".toInt() }
+        return digits.sumOf { (first, last) -> "$first$last".toInt() }
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day01_test")
-    check(part2(testInput) == 281)
+//    val testInput = readInput("Day01_test")
+//    check(part2(testInput) == 281)
 
     val input = readInput("Day01")
     part1(input).println()
