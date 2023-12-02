@@ -14,6 +14,14 @@ fun calcCubeByColor(color: Color, segment: String) = segment.split(",")
     .filter { it.contains(color.value) }
     .sumOf { it.trim().split(" ")[0].toInt() }
 
+fun findCubesByColor(color: Color, segment: String) = segment.split(",")
+    .find { it.trim().contains(color.value) }
+    ?.trim()
+    ?.split(" ")
+    ?.firstOrNull()
+    ?.toIntOrNull() ?: 1
+
+
 fun splitBySet(input: String) = input.split(";")
 
 fun getGameId(input: String) = input.split(" ")[1].toInt()
@@ -35,7 +43,7 @@ fun parseGameData(line: String): Pair<String, List<String>> {
     return Pair(gameNumber, segments)
 }
 
-fun processGame(gameData: Pair<String, List<String>>): Int {
+fun processGamePartOne(gameData: Pair<String, List<String>>): Int {
     val (gameNumber, segments) = gameData
     for ((color, limit) in colorsInBag) {
         if (exceedsLimit(segments, color, limit)) {
@@ -45,29 +53,43 @@ fun processGame(gameData: Pair<String, List<String>>): Int {
     return getGameId(gameNumber)
 }
 
+fun findBiggestByColor(color: Color, segments: List<String>): Int =
+    segments.maxOfOrNull { findCubesByColor(color, it) }!!
+
+fun processGamePartTwo(segments: List<String>) =
+    Color.entries.map { findBiggestByColor(it, segments) }.reduce { acc, i -> acc * i }
+
 
 fun main() {
 
     fun part1(input: List<String>): Int {
-        val ids = mutableSetOf<Int>()
+        val ids = mutableListOf<Int>()
 
         input.forEach { line ->
             val gameData = parseGameData(line)
-            val gameId = processGame(gameData)
+            val gameId = processGamePartOne(gameData)
             if (gameId != -1) ids.add(gameId)
         }
 
         return ids.sum()
     }
 
-//    fun part2(input: List<String>): Int {
-//    }
+    fun part2(input: List<String>): Int {
+        val powers = mutableListOf<Int>()
+
+        input.forEach { line ->
+            val (_, segments) = parseGameData(line)
+            powers.add(processGamePartTwo(segments))
+        }
+
+        return powers.sum();
+    }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day02_test")
-    check(part1(testInput) == 8)
+    check(part2(testInput) == 2286)
 
     val input = readInput("Day02")
     part1(input).println()
-//    part2(input).println()
+    part2(input).println()
 }
