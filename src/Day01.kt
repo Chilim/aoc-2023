@@ -1,13 +1,12 @@
-
-fun isDigitLiteral (num: String) = { input: String -> input.length >= num.length  && input.slice(num.indices) == num};
+fun isDigitLiteral(num: String) = { input: String -> input.length >= num.length && input.slice(num.indices) == num }
 
 fun isNumericChar(c: Char) = c in "otfsen"
 
 
-val DEFAULT_PAIR = Pair(0, 0);
+val DEFAULT_PAIR = Pair(0, 0)
 
 fun getNumberAndShift(input: String): Pair<Int, Int> {
-    return when(input[0]) {
+    return when (input[0]) {
         'o' -> {
             if (isDigitLiteral("one")(input)) {
                 Pair(1, "one".length)
@@ -15,6 +14,7 @@ fun getNumberAndShift(input: String): Pair<Int, Int> {
                 DEFAULT_PAIR
             }
         }
+
         't' -> {
             if (isDigitLiteral("two")(input)) {
                 Pair(2, "two".length)
@@ -24,6 +24,7 @@ fun getNumberAndShift(input: String): Pair<Int, Int> {
                 DEFAULT_PAIR
             }
         }
+
         'f' -> {
             if (isDigitLiteral("four")(input)) {
                 Pair(4, "four".length)
@@ -33,6 +34,7 @@ fun getNumberAndShift(input: String): Pair<Int, Int> {
                 DEFAULT_PAIR
             }
         }
+
         's' -> {
             if (isDigitLiteral("six")(input)) {
                 Pair(6, "six".length)
@@ -42,6 +44,7 @@ fun getNumberAndShift(input: String): Pair<Int, Int> {
                 DEFAULT_PAIR
             }
         }
+
         'e' -> {
             if (isDigitLiteral("eight")(input)) {
                 Pair(8, "eight".length)
@@ -62,43 +65,43 @@ fun getNumberAndShift(input: String): Pair<Int, Int> {
 
 
 fun extractDigits(input: String): Pair<Int, Int> {
-    var firstDigit = -1;
-    var lastDigit = -1;
-    var index = 0;
+    var firstDigit = -1
+    var lastDigit = -1
+    var index = 0
 
     while (index < input.length && firstDigit == -1) {
         if (isNumericChar(input[index])) {
             val pair = getNumberAndShift(input.substring(index))
             if (pair.first != 0) {
-                firstDigit = pair.first;
+                firstDigit = pair.first
             } else {
-                index += 1;
+                index += 1
             }
         } else if (input[index].isDigit()) {
-            firstDigit = input[index].digitToInt();
+            firstDigit = input[index].digitToInt()
         } else {
-            index +=1;
+            index += 1
         }
     }
 
-    index = input.length - 1;
+    index = input.length - 1
 
     while (index >= 0 && lastDigit == -1) {
         if (isNumericChar(input[index])) {
             val pair = getNumberAndShift(input.substring(index))
             if (pair.first != 0) {
-                lastDigit = pair.first;
+                lastDigit = pair.first
             } else {
-                index -= 1;
+                index -= 1
             }
         } else if (input[index].isDigit()) {
-            lastDigit = input[index].digitToInt();
+            lastDigit = input[index].digitToInt()
         } else {
-            index -=1;
+            index -= 1
         }
     }
 
-    return Pair(firstDigit, lastDigit);
+    return Pair(firstDigit, lastDigit)
 }
 
 
@@ -106,7 +109,7 @@ fun main() {
 
     fun digitToInt(input: String): List<Char> {
         val (digits) = input.toList().partition { it.isDigit() }
-        return digits;
+        return digits
     }
 
     fun part1(input: List<String>): Int {
@@ -122,7 +125,7 @@ fun main() {
 
     fun part2(input: List<String>): Int {
         val digits = input.map { extractDigits(it) }
-        return digits.sumOf {"${it.first}${it.second}".toInt()}
+        return digits.sumOf { "${it.first}${it.second}".toInt() }
     }
 
     // test if implementation meets criteria from the description, like:
